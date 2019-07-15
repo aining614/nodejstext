@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.4/pagination.css">
+</head>
+<body>
+<div class="container"> 
+
+<div class="page-header text-center"><h1>Hi <%= currentUser%> !</h1>
+    <form action="/logout" method="get">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+
+
+<select id="myselect" onchange="orderSelect()">
+    <option value="">Recent Projects</option>
+    <option value="ORDER BY categoryname">Order By Category Name</option>
+    <option value="ORDER BY username">Order By Username</option>
+    <option value="ORDER BY project_title">Order By Project Title</option>
+</select>
+<table id="mytable" class="table table-striped" border="1">
+    <thread>
+        <th>Project Title</th>
+        <th>Username</th>
+        <th>CategoryName</th>
+    </thread>
+    <tbody id="data-container">
+    </tbody>
+</table>
+<div id="pagination-container"></div>
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<script src="https://pagination.js.org/dist/2.1.4/pagination.js"></script>
+<script type="text/javascript">
+    var value = '';
+    function simpleTemplating(data) {
+        var html = '';
+        $.each(data, function (index, item) {
+            html += '<tr><td>' + item.project_title + '</td>';
+            html += '<td>' + item.username + '</td>';
+            html += '<td>' + item.categoryname + '</td></tr>';
+        });
+        return html;
+    }
+    function orderSelect() {
+        value = $('#myselect').val();
+        console.log(value);
+        $.ajax({
+            url: '/table',
+            dataType: 'json',
+            type: 'GET',
+            data: {
+                orderby: value,
+            },
+            success: function (result) {
+                console.log(result);
+                $('#pagination-container').pagination({
+                    dataSource: result,
+                    pageSize: 2,
+                    callback: function (data, pagination) {
+                        var html = simpleTemplating(data);
+                        $('#data-container').html(html);
+                    }
+                })
+            }
+        })
+    };
+    $.ajax({
+        url: '/table',
+        dataType: 'json',
+        type: 'GET',
+        data: {
+            orderby: value,
+        },
+        success: function (result) {
+            console.log(result);
+            $('#pagination-container').pagination({
+                dataSource: result,
+                pageSize: 2,
+                callback: function (data, pagination) {
+                    var html = simpleTemplating(data);
+                    $('#data-container').html(html);
+                }
+            })
+        }
+    })
+
+
+</script>
+</body>
+
+</html>
